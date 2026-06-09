@@ -1,6 +1,4 @@
 hours_before_execution
-request_month
-request_week
 request_day
 peak_gpu_hours
 offpeak_gpu_hours
@@ -16,6 +14,8 @@ estimated_cost_per_hour
 reserved_storage_units
 special_resource_requests
 high_value_client
+week_sin
+week_cos
 datacenter_GPU_Cluster_BB
 service_tier_on_demand
 service_tier_priority
