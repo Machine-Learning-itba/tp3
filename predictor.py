@@ -1,9 +1,9 @@
 """
-predictor_v1_Grupo_X — TP3 GPU Reservation Cancellation Predictor
+predictor_v1_Grupo_1 — TP3 GPU Reservation Cancellation Predictor
 
 Usage:
-    from predictor import predictor_v1_Grupo_X
-    predictions = predictor_v1_Grupo_X(X_new_df)
+    from predictor import predictor_v1_Grupo_1
+    predictions = predictor_v1_Grupo_1(X_new_df)
 """
 
 import os
@@ -18,7 +18,8 @@ _FEATURE_COLS_PATH = os.path.join(_BASE_DIR, "data", "processed", "final_feature
 _pipeline = None
 _feature_cols = None
 
-COLS_TO_DROP = ["total_gpu_hours", "total_processes", "canceled_job"]
+# Columnas derivadas/redundantes eliminadas en 01_limpieza (+ target si viene)
+COLS_TO_DROP = ["total_gpu_hours", "total_processes", "request_month", "canceled_job"]
 
 
 def _load_artifacts():
@@ -31,7 +32,7 @@ def _load_artifacts():
             _feature_cols = f.read().splitlines()
 
 
-def predictor_v1_Grupo_X(X_new: pd.DataFrame) -> np.ndarray:
+def predictor_v1_Grupo_1(X_new: pd.DataFrame) -> np.ndarray:
     """
     Predice si una reserva GPU será cancelada antes de su ejecución.
 
@@ -46,17 +47,19 @@ def predictor_v1_Grupo_X(X_new: pd.DataFrame) -> np.ndarray:
 
     df = X_new.copy()
 
-    # Drop columnas derivadas / target si están presentes
+    # 1. Drop columnas derivadas / target si están presentes
     df = df.drop(columns=[c for c in COLS_TO_DROP if c in df.columns])
 
-    # OHE: mismas transformaciones que notebook 01_limpieza
-    cat_cols = df.select_dtypes(include="object").columns.tolist()
-    df = pd.get_dummies(df, columns=cat_cols, drop_first=True, dtype=int)
+    # 2. Encoding cíclico de request_week (igual que en 01_limpieza)
+    df["week_sin"] = np.sin(2 * np.pi * df["request_week"] / 53)
+    df["week_cos"] = np.cos(2 * np.pi * df["request_week"] / 53)
 
-    # Alinear columnas al espacio de features del modelo entrenado
-    for col in _feature_cols:
-        if col not in df.columns:
-            df[col] = 0
-    df = df[_feature_cols]
+    # 3. OHE robusto: drop_first=False + reindex equivale al encoding de train para
+    #    cualquier fila y evita mis-encoding cuando faltan categorías (p.ej. un solo subgrupo)
+    cat_cols = df.select_dtypes(include="object").columns.tolist()
+    df = pd.get_dummies(df, columns=cat_cols, drop_first=False, dtype=int)
+
+    # 4. Alinear columnas al espacio de features del modelo entrenado
+    df = df.reindex(columns=_feature_cols, fill_value=0)
 
     return _pipeline.predict(df).astype(int)
