@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TP3 — Diseño Data-Centric</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  deck-stage:not(:defined){visibility:hidden}
+
+  :root {
+    --c-dark:    #0f172a;
+    --c-mid:     #1e293b;
+    --c-muted:   #334155;
+    --c-slate:   #475569;
+    --c-light:   #f1f5f9;
+    --c-white:   #ffffff;
+    --c-accent:  #0ea5e9;
+    --c-accent2: #f59e0b;
+    --c-green:   #22c55e;
+    --c-red:     #ef4444;
+    --c-text:    #0f172a;
+    --c-ghost:   #94a3b8;
+
+    --type-huge:    96px;
+    --type-title:   76px;
+    --type-heading: 58px;
+    --type-sub:     46px;
+    --type-body:    34px;
+    --type-small:   28px;
+    --type-label:   24px;
+
+    --pad-x:   110px;
+    --pad-top:  90px;
+    --pad-bot:  80px;
+    --gap:      40px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  section {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ─── DARK SLIDE BASE ─── */
+  .dark {
+    background: var(--c-dark);
+    color: var(--c-white);
+  }
+  .dark-mid {
+    background: var(--c-mid);
+    color: var(--c-white);
+  }
+
+  /* ─── LIGHT SLIDE BASE ─── */
+  .light {
+    background: var(--c-light);
+    color: var(--c-text);
+  }
+  .white {
+    background: var(--c-white);
+    color: var(--c-text);
+  }
+
+  /* ─── LAYOUT HELPERS ─── */
+  .slide-inner {
+    position: absolute;
+    inset: 0;
+    padding: var(--pad-top) var(--pad-x) var(--pad-bot);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .slide-inner.center {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .row { display: flex; flex-direction: row; gap: var(--gap); }
+  .col { display: flex; flex-direction: column; gap: var(--gap); }
+  .flex1 { flex: 1; }
+
+  /* ─── TYPOGRAPHY ─── */
+  .t-label {
+    font-size: var(--type-label);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--c-accent);
+  }
+  .t-label.amber { color: var(--c-accent2); }
+  .t-label.light-text { color: var(--c-ghost); }
+
+  .t-huge {
+    font-size: var(--type-huge);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .t-title {
+    font-size: var(--type-title);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .t-heading {
+    font-size: var(--type-heading);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .t-sub {
+    font-size: var(--type-sub);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .t-body {
+    font-size: var(--type-body);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+  .t-small {
+    font-size: var(--type-small);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+  .t-label-sm {
+    font-size: var(--type-label);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--c-ghost);
+  }
+
+  .accent  { color: var(--c-accent); }
+  .amber   { color: var(--c-accent2); }
+  .green   { color: var(--c-green); }
+  .red     { color: var(--c-red); }
+  .ghost   { color: var(--c-ghost); }
+  .bold    { font-weight: 700; }
+  .w800    { font-weight: 800; }
+
+  /* ─── ACCENT BAR ─── */
+  .accent-bar {
+    width: 64px;
+    height: 6px;
+    background: var(--c-accent);
+    border-radius: 3px;
+    margin-bottom: 32px;
+  }
+  .accent-bar.amber { background: var(--c-accent2); }
+
+  /* ─── SLIDE TITLE WITH BAR ─── */
+  .slide-title {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 52px;
+  }
+  .slide-title .t-label { margin-bottom: 0; }
+
+  /* ─── STAT CARDS ─── */
+  .stat-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .stat-card.light-card {
+    background: var(--c-white);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .stat-card.accent-card {
+    background: var(--c-accent);
+    border: none;
+    color: var(--c-white);
+  }
+  .stat-card.amber-card {
+    background: var(--c-accent2);
+    border: none;
+    color: var(--c-white);
+  }
+  .stat-card.red-card {
+    background: var(--c-red);
+    border: none;
+    color: var(--c-white);
+  }
+
+  .stat-number {
+    font-size: 72px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: var(--type-small);
+    font-weight: 500;
+    opacity: 0.75;
+  }
+
+  /* ─── DATA TABLE ─── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--type-small);
+  }
+  .data-table th {
+    font-size: var(--type-label);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 18px 24px;
+    text-align: left;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+    color: var(--c-ghost);
+  }
+  .data-table td {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    font-size: var(--type-small);
+  }
+  .data-table.light-table th {
+    color: var(--c-slate);
+    border-bottom: 2px solid #e2e8f0;
+  }
+  .data-table.light-table td {
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .data-table .winner-row td {
+    background: rgba(14,165,233,0.12);
+    font-weight: 700;
+  }
+  .data-table .winner-row td:first-child {
+    border-left: 4px solid var(--c-accent);
+    padding-left: 20px;
+  }
+
+  /* ─── BULLET LIST ─── */
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    font-size: var(--type-body);
+    line-height: 1.45;
+  }
+  .bullet-list li::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--c-accent);
+    flex-shrink: 0;
+    margin-top: 14px;
+  }
+  .bullet-list.amber li::before { background: var(--c-accent2); }
+  .bullet-list.small li { font-size: var(--type-small); gap: 16px; }
+  .bullet-list.small li::before { width: 8px; height: 8px; margin-top: 11px; }
+
+  /* ─── STEP CARDS ─── */
+  .step-card {
+    background: var(--c-white);
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 44px 48px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+  .step-card.accent-border { border-top: 5px solid var(--c-accent); }
+  .step-card.amber-border  { border-top: 5px solid var(--c-accent2); }
+  .step-card.red-border    { border-top: 5px solid var(--c-red); }
+
+  .step-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--c-accent);
+    opacity: 0.35;
+    line-height: 1;
+  }
+  .step-card.amber-border .step-num { color: var(--c-accent2); }
+  .step-card.red-border .step-num   { color: var(--c-red); }
+
+  /* ─── PILL BADGE ─── */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(14,165,233,0.15);
+    color: var(--c-accent);
+    border: 1px solid rgba(14,165,233,0.3);
+    border-radius: 100px;
+    padding: 10px 28px;
+    font-size: var(--type-label);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+  .pill.amber-pill {
+    background: rgba(245,158,11,0.15);
+    color: var(--c-accent2);
+    border-color: rgba(245,158,11,0.3);
+  }
+
+  /* ─── DECORATIVE GRID ─── */
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(14,165,233,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(14,165,233,0.05) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+  }
+  .bg-glow {
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ─── IMAGE FRAME ─── */
+  .img-frame {
+    background: var(--c-white);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  .img-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* ─── SECTION SLIDE STYLING ─── */
+  .section-num {
+    font-size: 200px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: rgba(14,165,233,0.1);
+    position: absolute;
+    right: var(--pad-x);
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    margin: 8px 0;
+  }
+  .divider.dark-div { background: #e2e8f0; }
+
+  /* ─── TWO-COLUMN EQUAL ─── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    flex: 1;
+  }
+  .two-col-60 {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 56px;
+    flex: 1;
+  }
+  .two-col-40 {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: 56px;
+    flex: 1;
+  }
+
+  /* ─── HIGHLIGHT BOX ─── */
+  .highlight-box {
+    background: rgba(14,165,233,0.08);
+    border: 1px solid rgba(14,165,233,0.25);
+    border-left: 5px solid var(--c-accent);
+    border-radius: 8px;
+    padding: 28px 36px;
+  }
+  .highlight-box.amber-box {
+    background: rgba(245,158,11,0.08);
+    border-color: rgba(245,158,11,0.25);
+    border-left-color: var(--c-accent2);
+  }
+
+  /* ─── COMPARE ROW ─── */
+  .compare-row {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    padding: 22px 36px;
+    border-radius: 14px;
+    background: var(--c-white);
+    border: 1px solid #e2e8f0;
+  }
+  .compare-row.is-winner {
+    background: rgba(14,165,233,0.07);
+    border: 2px solid var(--c-accent);
+  }
+  .compare-row .cmp-label { flex: 2; font-size: var(--type-small); font-weight: 600; }
+  .compare-row .cmp-val   { flex: 1; font-size: 38px; font-weight: 800; text-align: right; }
+  .compare-row .cmp-delta { flex: 1; font-size: var(--type-small); font-weight: 700; text-align: right; }
+
+  /* ─── FOOTER STRIP ─── */
+  .slide-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--c-accent) 0%, rgba(14,165,233,0.2) 100%);
+  }
+
+  /* ─── ENTER ANIMATIONS ─── */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-deck-active] .anim-up {
+      animation: slide-up 0.55s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    [data-deck-active] .anim-up:nth-child(2) { animation-delay: 0.07s; }
+    [data-deck-active] .anim-up:nth-child(3) { animation-delay: 0.14s; }
+    [data-deck-active] .anim-up:nth-child(4) { animation-delay: 0.21s; }
+    [data-deck-active] .anim-up:nth-child(5) { animation-delay: 0.28s; }
+    [data-deck-active] .anim-fade {
+      animation: fade-in 0.5s ease both;
+    }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<deck-stage width="1920" height="1080">
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 01 — PORTADA
+  ══════════════════════════════════════════════════ -->
+  <section class="dark" data-label="Portada">
+    <div class="bg-grid"></div>
+    <div class="bg-glow" style="top:-200px;right:-100px;"></div>
+    <div class="bg-glow" style="bottom:-300px;left:200px;width:500px;height:500px;background:radial-gradient(circle,rgba(245,158,11,0.07) 0%,transparent 70%);"></div>
+    <div class="slide-inner" style="justify-content:center;gap:36px;">
+      <div class="pill anim-up">72.75 Aprendizaje Automático — ITBA</div>
+      <div style="display:flex;flex-direction:column;gap:16px;" class="anim-up">
+        <div class="t-label" style="letter-spacing:0.16em;font-size:28px;">TRABAJO PRÁCTICO 3</div>
+        <div class="t-title" style="font-size:88px;max-width:1400px;line-height:1.0;">Diseño<br><span class="accent">Data-Centric</span></div>
+      </div>
+      <div class="t-sub ghost anim-up" style="max-width:900px;margin-top:8px;">
+        Predicción de Cancelación de Reservas GPU mediante<br>Análisis de Errores por Cohorte y Estrategia de Datos
+      </div>
+    </div>
+    <div class="slide-footer"></div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 02 — EL PROBLEMA
+  ══════════════════════════════════════════════════ -->
+  <section class="light" data-label="El Problema">
+    <div class="slide-inner">
+      <div class="slide-title anim-up" style="margin-bottom:36px;">
+        <div class="t-label">Contexto</div>
+        <div class="t-heading">El Problema y el Dataset</div>
+      </div>
+
+      <div class="row anim-up" style="gap:40px;margin-bottom:28px;">
+        <div class="stat-card light-card" style="flex:1;align-items:center;text-align:center;">
+          <div class="stat-number accent">9.551</div>
+          <div class="stat-label" style="font-size:28px;color:#475569;">Reservas GPU</div>
+        </div>
+        <div class="stat-card light-card" style="flex:1;align-items:center;text-align:center;">
+          <div class="stat-number" style="color:#0f172a;">29</div>
+          <div class="stat-label" style="font-size:28px;color:#475569;">Variables originales</div>
+        </div>
+        <div class="stat-card light-card" style="flex:1;align-items:center;text-align:center;">
+          <div class="stat-number amber">37%</div>
+          <div class="stat-label" style="font-size:28px;color:#475569;">Tasa de cancelación</div>
+        </div>
+        <div class="stat-card light-card" style="flex:1;align-items:center;text-align:center;">
+          <div class="stat-number" style="color:#22c55e;font-size:52px;margin-top:4px;">80/20</div>
+          <div class="stat-label" style="font-size:28px;color:#475569;">Split temporal</div>
+        </div>
+      </div>
+
+      <div class="two-col-60 anim-up" style="flex:1;">
+        <div class="col" style="gap:30px;justify-content:center;">
+          <div class="highlight-box" style="padding:36px 44px;">
+            <div class="t-label" style="margin-bottom:12px;">Objetivo</div>
+            <div class="t-body" style="font-weight:600;line-height:1.45;">Predecir si un trabajo GPU será cancelado (<span class="accent bold">canceled_job</span>) antes de su ejecución</div>
+          </div>
+          <ul class="bullet-list" style="gap:16px;">
+            <li class="t-small"><span>Dataset de reservas de infraestructura GPU en entorno de cómputo distribuido</span></li>
+            <li class="t-small"><span>Clase <span class="bold">desbalanceada</span>: 37% positivos (cancelados) en train, 34.6% en test</span></li>
+            <li class="t-small"><span>Split <span class="bold">temporal</span>: 7.640 train / 1.911 test — preserva orden cronológico</span></li>
+          </ul>
+        </div>
+        <div class="col" style="justify-content:center;gap:24px;">
+          <div class="t-label-sm" style="margin-bottom:4px;">Métricas de evaluación</div>
+          <div class="step-card accent-border" style="padding:26px 36px;gap:10px;">
+            <div class="t-label accent">F1-Score</div>
+            <div class="t-small" style="color:#475569;line-height:1.45;">Penaliza FP y FN por igual. Clave con clases desbalanceadas: tanto predecir un trabajo cancelado erróneamente como no detectar una cancelación real tienen costo operativo.</div>
+          </div>
+          <div class="step-card amber-border" style="padding:26px 36px;gap:10px;">
+            <div class="t-label amber">ROC-AUC</div>
+            <div class="t-small" style="color:#475569;line-height:1.45;">Independiente del umbral de clasificación. Mide la capacidad del modelo de rankear correctamente las instancias.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 03 — SECTION: NOTEBOOKS 01 & 02
+  ══════════════════════════════════════════════════ -->
+  <section class="dark" data-label="Sección NB01-02">
+    <div class="bg-grid"></div>
+    <div class="section-num">01–02</div>
+    <div class="slide-inner" style="justify-content:center;gap:28px;">
+      <div class="t-label anim-up" style="color:var(--c-ghost);letter-spacing:0.18em;">TRABAJO PREPARATORIO</div>
+      <div class="t-title anim-up" style="max-width:1100px;">
+        Notebooks <span class="accent">01</span> y <span class="accent">02</span>
+      </div>
+      <div class="t-sub anim-up ghost" style="max-width:800px;margin-top:8px;">
+        Limpieza, EDA y selección del modelo baseline
+      </div>
+      <div class="highlight-box anim-up" style="max-width:900px;margin-top:20px;">
+        <div class="t-small" style="color:var(--c-light);">
+          El foco del TP3 está en el Notebook 03 — los notebooks 01 y 02 son el punto de partida del análisis data-centric.
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"></div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 04 — NOTEBOOK 01: LIMPIEZA
+  ══════════════════════════════════════════════════ -->
+  <section class="white" data-label="Notebook 01">
+    <div class="slide-inner">
+      <div class="slide-title anim-up">
+        <div class="t-label">Notebook 01</div>
+        <div class="t-heading">Limpieza y Preparación del Dataset</div>
+      </div>
+      <div class="two-col anim-up" style="flex:1;gap:64px;">
+        <div class="col" style="gap:28px;justify-content:flex-start;">
+          <div class="t-label-sm" style="margin-bottom:0;">Pasos realizados</div>
+          <ul class="bullet-list" style="gap:26px;">
+            <li class="t-body"><span><span class="bold">EDA visual</span>: distribuciones numéricas, categóricas y por clase</span></li>
+            <li class="t-body"><span><span class="bold">Análisis de leakage</span>: eliminación de features con información post-hoc (total_gpu_hours, total_processes, request_month)</span></li>
+            <li class="t-body"><span><span class="bold">Feature engineering</span>: encoding cíclico de <span class="accent">request_week</span> (sin/cos) + OHE para categóricas</span></li>
+            <li class="t-body"><span><span class="bold">Split temporal</span>: 80% train / 20% test por orden cronológico</span></li>
+          </ul>
+        </div>
+        <div class="col" style="justify-content:center;gap:28px;">
+          <div class="t-label-sm">Resultado del split</div>
+          <div class="row" style="gap:28px;">
+            <div class="step-card accent-border" style="flex:1;align-items:center;text-align:center;padding:44px 36px;gap:14px;">
+              <div class="t-label accent">TRAIN</div>
+              <div style="font-size:72px;font-weight:800;color:var(--c-text);letter-spacing:-0.03em;line-height:1;">7.640</div>
+              <div class="t-small ghost">instancias</div>
+              <div class="t-small" style="color:#475569;">37.6% cancelados</div>
+            </div>
+            <div class="step-card" style="flex:1;align-items:center;text-align:center;padding:44px 36px;gap:14px;border-top:5px solid #64748b;">
+              <div class="t-label" style="color:#64748b;">TEST</div>
+              <div style="font-size:72px;font-weight:800;color:var(--c-text);letter-spacing:-0.03em;line-height:1;">1.911</div>
+              <div class="t-small ghost">instancias</div>
+              <div class="t-small" style="color:#475569;">34.6% cancelados</div>
+            </div>
+          </div>
+          <div class="highlight-box" style="margin-top:8px;">
+            <div class="t-small" style="font-weight:600;">55 features finales</div>
+            <div class="t-small" style="color:#475569;margin-top:6px;">después del feature engineering y OHE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 05 — NOTEBOOK 02: COMPARACIÓN DE MODELOS
+  ══════════════════════════════════════════════════ -->
+  <section class="light" data-label="Notebook 02">
+    <div class="slide-inner">
+      <div class="slide-title anim-up">
+        <div class="t-label">Notebook 02 — Model-Centered</div>
+        <div class="t-heading">Comparación de 5 Clasificadores</div>
+      </div>
+      <div class="two-col-40 anim-up" style="flex:1;gap:56px;">
+        <div class="col" style="gap:28px;justify-content:center;">
+          <div class="t-small ghost" style="font-weight:600;">CV F1 promedio (TimeSeriesSplit, 5 folds)</div>
+          <table class="data-table light-table" style="font-size:28px;">
+            <thead>
+              <tr>
+                <th>Modelo</th>
+                <th>CV F1</th>
+                <th>CV ROC-AUC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Naive Bayes</td><td>0.594</td><td>0.757</td></tr>
+              <tr><td>LDA</td><td>0.636</td><td>0.831</td></tr>
+              <tr><td>SVM (RBF)</td><td>0.639</td><td>0.825</td></tr>
+              <tr><td>Random Forest</td><td>0.677</td><td>0.850</td></tr>
+              <tr class="winner-row"><td><span class="accent bold">XGBoost ✓</span></td><td class="accent bold">0.698</td><td class="accent bold">0.847</td></tr>
+            </tbody>
+          </table>
+          <div class="t-small" style="color:#475569;line-height:1.55;">
+            <span class="bold">TimeSeriesSplit</span>: cada fold entrena en datos pasados y valida en datos futuros — evita leakage temporal.
+          </div>
+        </div>
+        <div class="col" style="justify-content:center;">
+          <div class="img-frame" style="width:100%;height:680px;">
+            <img src="images/roc_all_models.png" alt="ROC Curves — todos los modelos">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 06 — BASELINE: XGBOOST
+  ══════════════════════════════════════════════════ -->
+  <section class="dark" data-label="Baseline XGBoost">
+    <div class="bg-grid"></div>
+    <div class="bg-glow" style="top:-100px;right:200px;opacity:0.7;"></div>
+    <div class="slide-inner" style="justify-content:center;gap:0;">
+      <div class="col" style="gap:12px;margin-bottom:56px;" class="anim-up">
+        <div class="t-label" style="color:var(--c-ghost);">Modelo Baseline Seleccionado</div>
+        <div class="t-heading">XGBoost <span style="color:var(--c-ghost);font-weight:400;">— Evaluación en Test</span></div>
+      </div>
+      <div class="row anim-up" style="gap:48px;justify-content:center;margin-bottom:52px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <div style="font-size:130px;font-weight:800;letter-spacing:-0.04em;line-height:1;" class="accent">0.7185</div>
+          <div class="t-sub ghost">F1-Score</div>
+        </div>
+        <div style="width:2px;background:rgba(255,255,255,0.12);border-radius:1px;"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <div style="font-size:130px;font-weight:800;letter-spacing:-0.04em;line-height:1;" class="amber">0.8772</div>
+          <div class="t-sub ghost">ROC-AUC</div>
+        </div>
+      </div>
+      <div class="row anim-up" style="gap:36px;justify-content:center;">
+        <div class="stat-card" style="text-align:center;padding:32px 56px;gap:8px;">
+          <div class="t-small ghost">Pipeline</div>
+          <div class="t-body" style="font-weight:700;letter-spacing:0.02em;">StandardScaler → <span class="accent">XGBoost</span></div>
+        </div>
+        <div class="stat-card" style="text-align:center;padding:32px 56px;gap:8px;">
+          <div class="t-small ghost">Tuning</div>
+          <div class="t-body" style="font-weight:700;">Validation Curves + GridSearch</div>
+        </div>
+        <div class="stat-card" style="text-align:center;padding:32px 56px;gap:8px;">
+          <div class="t-small ghost">Desbalance</div>
+          <div class="t-body" style="font-weight:700;"><span class="accent">scale_pos_weight</span> automático</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer" style="background:linear-gradient(90deg,var(--c-accent2) 0%,rgba(245,158,11,0.2) 100%);"></div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 07 — SECTION: NOTEBOOK 03
+  ══════════════════════════════════════════════════ -->
+  <section class="dark" data-label="Sección NB03">
+    <div class="bg-grid"></div>
+    <div class="section-num" style="color:rgba(14,165,233,0.08);">03</div>
+    <div class="slide-inner" style="justify-content:center;gap:28px;">
+      <div class="t-label anim-up" style="color:var(--c-ghost);letter-spacing:0.18em;">FOCO PRINCIPAL</div>
+      <div class="t-title anim-up"><span>Notebook <span class="accent">03</span></span></div>
+      <div class="t-sub anim-up" style="max-width:900px;margin-top:4px;color:rgba(248,250,252,0.75);">
+        Diseño Data-Centric: Análisis de Errores,<br>Cohortes y Estrategia de Mejora
+      </div>
+      <div class="row anim-up" style="gap:24px;margin-top:28px;justify-content:center;">
+        <div class="pill">3.1 Errores por cohorte</div>
+        <div class="pill">3.2 Curvas de aprendizaje</div>
+        <div class="pill">3.3 Cohorte problemática</div>
+        <div class="pill">3.4 Real vs SMOTE</div>
+      </div>
+    </div>
+    <div class="slide-footer"></div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 08 — ANÁLISIS DE ERRORES POR COHORTE
+  ══════════════════════════════════════════════════ -->
+  <section class="white" data-label="Análisis por Cohorte">
+    <div class="slide-inner" style="padding-top:72px;padding-bottom:52px;">
+      <div class="slide-title anim-up" style="margin-bottom:36px;">
+        <div class="t-label">Sección 3.1</div>
+        <div class="t-heading">Análisis de Errores por Cohorte</div>
+      </div>
+      <div class="row anim-up" style="flex:1;gap:48px;align-items:center;">
+        <div class="img-frame" style="flex:1.8;height:740px;">
+          <img src="images/cohort_error_analysis.png" alt="Análisis de errores por cohorte: F1, FPR, FNR">
+        </div>
+        <div class="col" style="flex:1;gap:26px;justify-content:center;">
+          <div class="t-label-sm">3 dimensiones analizadas</div>
+          <ul class="bullet-list" style="gap:24px;">
+            <li class="t-small"><span><span class="bold">client_type</span>: alta heterogeneidad. Rango F1: 0.0 → 0.87</span></li>
+            <li class="t-small"><span><span class="bold">service_tier</span>: <em>enterprise</em> mejor (F1=0.92), <em>unknown</em> peor (F1=0.0)</span></li>
+            <li class="t-small"><span><span class="bold">reserved_gpu_type</span>: GPU_T5, T7, T4 con F1 &lt; 0.60</span></li>
+          </ul>
+          <div class="highlight-box amber-box" style="margin-top:8px;">
+            <div class="t-small" style="font-weight:700;color:var(--c-accent2);margin-bottom:8px;">Hallazgo clave</div>
+            <div class="t-small" style="color:#475569;line-height:1.6;">El rendimiento global de <span class="bold">F1=0.72</span> oculta diferencias importantes entre cohortes. Algunas cohortes tienen F1 cercano a 0.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 09 — COHORTE PROBLEMÁTICA
+  ══════════════════════════════════════════════════ -->
+  <section class="light" data-label="Cohorte Problemática">
+    <div class="slide-inner">
+      <div class="slide-title anim-up">
+        <div class="t-label">Sección 3.3 — Cohorte Seleccionada</div>
+        <div class="t-heading"><span class="accent">internal_research</span>: Análisis en Profundidad</div>
+      </div>
+
+      <div class="row anim-up" style="gap:36px;margin-bottom:40px;">
+        <div class="stat-card red-card" style="flex:1;align-items:center;text-align:center;">
+          <div class="stat-number" style="font-size:80px;">0.31</div>
+          <div class="stat-label">F1-Score en test</div>
+          <div style="font-size:24px;opacity:0.75;margin-top:4px;">vs. 0.72 global</div>
+        </div>
+        <div class="stat-card" style="flex:1;align-items:center;text-align:center;background:#7c3aed;border:none;color:white;">
+          <div class="stat-number" style="font-size:80px;color:white;">73%</div>
+          <div class="stat-label" style="color:rgba(255,255,255,0.8);">FNR — cancelaciones no detectadas</div>
+        </div>
+        <div class="stat-card light-card" style="flex:1;align-items:center;text-align:center;">
+          <div class="stat-number amber">10.6%</div>
+          <div class="stat-label">del dataset total</div>
+          <div style="font-size:24px;color:#94a3b8;margin-top:4px;">1.009 instancias</div>
+        </div>
+        <div class="stat-card light-card" style="flex:1;align-items:center;text-align:center;">
+          <div class="stat-number" style="font-size:66px;color:#0f172a;">15.4%</div>
+          <div class="stat-label">tasa de cancelación</div>
+          <div style="font-size:24px;color:#94a3b8;margin-top:4px;">vs. 37% global</div>
+        </div>
+      </div>
+
+      <div class="two-col anim-up" style="flex:1;gap:56px;">
+        <div class="col" style="justify-content:flex-start;gap:20px;">
+          <div class="t-label-sm">Causas identificadas</div>
+          <ul class="bullet-list amber" style="gap:22px;">
+            <li class="t-small"><span><span class="bold">Clase positiva subrepresentada</span> dentro de la cohorte: solo 133 cancelados de 826 instancias en train (16.1%)</span></li>
+            <li class="t-small"><span><span class="bold">Patrón de cancelación diferente</span> al resto del dataset — el modelo global no lo captura bien</span></li>
+            <li class="t-small"><span>La cohorte <span class="bold">más grande</span> con problema de rendimiento (n≥30): 826 instancias en train</span></li>
+          </ul>
+        </div>
+        <div class="col" style="justify-content:center;gap:20px;">
+          <div class="t-label-sm">Distribución temporal de cancelaciones</div>
+          <div class="highlight-box amber-box" style="padding:32px 40px;">
+            <div class="t-small" style="font-weight:700;margin-bottom:14px;">Variación estacional marcada:</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+              <div style="text-align:center;padding:16px;background:white;border-radius:12px;border:1px solid #e2e8f0;">
+                <div style="font-size:36px;font-weight:800;color:#0f172a;">8%</div>
+                <div class="t-label-sm">Ene–Feb</div>
+              </div>
+              <div style="text-align:center;padding:16px;background:white;border-radius:12px;border:1px solid #e2e8f0;">
+                <div style="font-size:36px;font-weight:800;color:#f59e0b;">21%</div>
+                <div class="t-label-sm">May–Jun</div>
+              </div>
+              <div style="text-align:center;padding:16px;background:white;border-radius:12px;border:1px solid #e2e8f0;">
+                <div style="font-size:36px;font-weight:800;color:#ef4444;">22%</div>
+                <div class="t-label-sm">Jul–Ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 10 — CURVAS DE APRENDIZAJE
+  ══════════════════════════════════════════════════ -->
+  <section class="white" data-label="Curvas de Aprendizaje">
+    <div class="slide-inner">
+      <div class="slide-title anim-up">
+        <div class="t-label">Sección 3.2</div>
+        <div class="t-heading">Curvas de Aprendizaje — XGBoost</div>
+      </div>
+      <div class="row anim-up" style="flex:1;gap:56px;align-items:center;">
+        <div class="img-frame" style="flex:1.6;height:680px;">
+          <img src="images/learning_curve.png" alt="Curva de aprendizaje XGBoost">
+        </div>
+        <div class="col" style="flex:1;gap:32px;justify-content:center;">
+          <div class="t-label-sm">Interpretación</div>
+          <ul class="bullet-list" style="gap:28px;">
+            <li class="t-body"><span>La curva de <span class="bold">validación CV sigue creciendo</span> al agregar más datos de entrenamiento</span></li>
+            <li class="t-body"><span>Gap train/CV grande → overfitting, pero la dirección es correcta</span></li>
+            <li class="t-body"><span>El sistema es <span class="bold accent">data-limited</span>: más datos mejorarán el rendimiento</span></li>
+          </ul>
+          <div class="highlight-box" style="margin-top:8px;">
+            <div class="t-small" style="font-weight:700;color:var(--c-accent);margin-bottom:10px;">Conclusión</div>
+            <div class="t-body" style="font-weight:600;color:#0f172a;">Agregar datos reales de la cohorte problemática tiene potencial de mejora</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 11 — TRES ESTRATEGIAS
+  ══════════════════════════════════════════════════ -->
+  <section class="light" data-label="Estrategias Data-Centric">
+    <div class="slide-inner">
+      <div class="slide-title anim-up">
+        <div class="t-label">Sección 3.4 — Intervención sobre internal_research</div>
+        <div class="t-heading">Tres Estrategias Data-Centric</div>
+      </div>
+      <div class="row anim-up" style="flex:1;gap:36px;align-items:stretch;">
+        <div class="step-card accent-border" style="flex:1;gap:20px;">
+          <div class="step-num">A</div>
+          <div class="t-label accent">Datos Reales</div>
+          <div class="t-sub" style="font-weight:700;color:#0f172a;">+500 instancias reales</div>
+          <div class="t-small" style="color:#475569;line-height:1.65;flex:1;">Dataset adicional de <span class="bold">internal_research</span> obtenido del sistema. Mismo preprocesamiento que NB01. Incorporado directamente al conjunto de entrenamiento.</div>
+          <div style="padding:16px 20px;background:#f0f9ff;border-radius:10px;border:1px solid #bae6fd;">
+            <div class="t-label accent" style="margin-bottom:4px;">Train: 7.640 → 8.140</div>
+            <div style="font-size:24px;color:#64748b;">cancel_rate extra: 18.2%</div>
+          </div>
+        </div>
+        <div class="step-card" style="flex:1;gap:20px;border-top:5px solid #7c3aed;">
+          <div class="step-num" style="color:#7c3aed;">B</div>
+          <div class="t-label" style="color:#7c3aed;">SMOTE</div>
+          <div class="t-sub" style="font-weight:700;color:#0f172a;">+560 instancias sintéticas</div>
+          <div class="t-small" style="color:#475569;line-height:1.65;flex:1;">Synthetic Minority Oversampling solo sobre la clase cancelada de la cohorte. Interpolación en espacio de features con k=5 vecinos más cercanos.</div>
+          <div style="padding:16px 20px;background:#f5f3ff;border-radius:10px;border:1px solid #c4b5fd;">
+            <div class="t-label" style="color:#7c3aed;margin-bottom:4px;">Train: 7.640 → 8.200</div>
+            <div style="font-size:24px;color:#64748b;">balanceo de clase en cohorte</div>
+          </div>
+        </div>
+        <div class="step-card amber-border" style="flex:1;gap:20px;">
+          <div class="step-num" style="color:var(--c-accent2);">C</div>
+          <div class="t-label amber">Class Weight</div>
+          <div class="t-sub" style="font-weight:700;color:#0f172a;">Pesos aumentados ×3.0</div>
+          <div class="t-small" style="color:#475569;line-height:1.65;flex:1;">Sample weights: triplicar la importancia de las instancias de <span class="bold">internal_research</span> en el entrenamiento. Sin generar datos nuevos.</div>
+          <div style="padding:16px 20px;background:#fffbeb;border-radius:10px;border:1px solid #fde68a;">
+            <div class="t-label amber" style="margin-bottom:4px;">Train size: sin cambio</div>
+            <div style="font-size:24px;color:#64748b;">conservador, solo repondera</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 12 — COMPARACIÓN DE ESTRATEGIAS
+  ══════════════════════════════════════════════════ -->
+  <section class="white" data-label="Comparación Estrategias">
+    <div class="slide-inner">
+      <div class="slide-title anim-up">
+        <div class="t-label">Sección 3.4 — Resultados</div>
+        <div class="t-heading">Datos Reales vs SMOTE vs Class Weight</div>
+      </div>
+      <div class="row anim-up" style="flex:1;gap:56px;align-items:center;">
+        <div class="img-frame" style="flex:1.7;height:620px;">
+          <img src="images/real_vs_smote_comparison.png" alt="Comparación estrategias">
+        </div>
+        <div class="col" style="flex:1;gap:8px;justify-content:center;">
+          <div class="t-label-sm" style="margin-bottom:4px;">Evaluación en test set</div>
+
+          <div class="compare-row" style="background:#f8fafc;border:1px solid #e2e8f0;padding:14px 28px;">
+            <div class="cmp-label ghost">Baseline</div>
+            <div class="cmp-val ghost" style="font-size:32px;">0.7185</div>
+            <div class="cmp-delta ghost" style="font-size:26px;">F1</div>
+          </div>
+          <div class="compare-row is-winner" style="padding:14px 28px;">
+            <div class="cmp-label"><span class="bold accent">Path A — Datos Reales</span></div>
+            <div class="cmp-val accent">0.7231</div>
+            <div class="cmp-delta green">+0.0046 ↑</div>
+          </div>
+          <div class="compare-row" style="border:1px solid #e2e8f0;padding:14px 28px;">
+            <div class="cmp-label">Path C — Class Weight</div>
+            <div class="cmp-val" style="font-size:32px;color:#0f172a;">0.7209</div>
+            <div class="cmp-delta green">+0.0024 ↑</div>
+          </div>
+          <div class="compare-row" style="border:1px solid #e2e8f0;padding:14px 28px;">
+            <div class="cmp-label" style="color:#94a3b8;">Path B — SMOTE</div>
+            <div class="cmp-val" style="font-size:32px;color:#94a3b8;">0.7115</div>
+            <div class="cmp-delta red">−0.0070 ↓</div>
+          </div>
+
+          <div class="highlight-box" style="margin-top:4px;padding:18px 28px;">
+            <div class="t-small" style="font-weight:700;color:var(--c-accent);">Los datos reales superan a SMOTE</div>
+            <div class="t-small" style="color:#475569;margin-top:6px;line-height:1.5;">Con pocas muestras positivas en la cohorte (133 en train), SMOTE genera artefactos. Los datos reales capturan el patrón de cancelación genuino.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 13 — MODELO FINAL
+  ══════════════════════════════════════════════════ -->
+  <section class="light" data-label="Modelo Final">
+    <div class="slide-inner">
+      <div class="slide-title anim-up">
+        <div class="t-label">Sección 4 — Modelo Final</div>
+        <div class="t-heading">XGBoost + Datos Reales <span class="accent">(Path A)</span></div>
+      </div>
+      <div class="row anim-up" style="flex:1;gap:56px;align-items:center;">
+        <div class="img-frame" style="flex:1.6;height:680px;">
+          <img src="images/final_model_evaluation.png" alt="Evaluación modelo final">
+        </div>
+        <div class="col" style="flex:1;gap:28px;justify-content:center;">
+          <div class="t-label-sm">Métricas finales en test</div>
+          <div class="row" style="gap:24px;">
+            <div class="stat-card accent-card" style="flex:1;align-items:center;text-align:center;padding:36px;">
+              <div class="stat-number" style="font-size:68px;color:white;">0.7231</div>
+              <div class="stat-label" style="color:rgba(255,255,255,0.85);">F1-Score</div>
+              <div style="font-size:24px;color:rgba(255,255,255,0.7);margin-top:4px;">+0.0046 vs baseline</div>
+            </div>
+            <div class="stat-card amber-card" style="flex:1;align-items:center;text-align:center;padding:36px;">
+              <div class="stat-number" style="font-size:68px;color:white;">0.8827</div>
+              <div class="stat-label" style="color:rgba(255,255,255,0.85);">ROC-AUC</div>
+              <div style="font-size:24px;color:rgba(255,255,255,0.7);margin-top:4px;">+0.0055 vs baseline</div>
+            </div>
+          </div>
+          <div class="col" style="gap:18px;">
+            <div class="highlight-box" style="padding:28px 36px;">
+              <div class="t-small" style="color:#475569;line-height:1.65;"><span class="bold" style="color:#0f172a;">Matriz de confusión</span>: 1.067 TN · 182 FP · 184 FN · 478 TP<br>Precision=0.724 · Recall=0.722</div>
+            </div>
+            <div class="step-card" style="padding:28px 36px;gap:10px;border-top:5px solid var(--c-green);">
+              <div class="t-label" style="color:var(--c-green);">Predictor Deployable</div>
+              <div class="t-small" style="color:#475569;line-height:1.6;">Pipeline exportado como <span class="bold">final_pipeline.pkl</span>: recibe los 55 features y retorna probabilidad de cancelación.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════
+       SLIDE 14 — CONCLUSIONES
+  ══════════════════════════════════════════════════ -->
+  <section class="dark" data-label="Conclusiones">
+    <div class="bg-grid"></div>
+    <div class="bg-glow" style="top:-200px;left:-100px;opacity:0.5;"></div>
+    <div class="slide-inner" style="justify-content:center;gap:0;">
+      <div class="col" style="gap:10px;margin-bottom:52px;" class="anim-up">
+        <div class="t-label" style="color:var(--c-ghost);">Resumen</div>
+        <div class="t-heading">Conclusiones</div>
+      </div>
+      <div class="two-col anim-up" style="flex:1;gap:48px;">
+        <ul class="bullet-list" style="gap:30px;justify-content:center;">
+          <li class="t-body"><span><span class="accent bold">XGBoost</span> es el mejor clasificador baseline (CV F1=0.698, Test F1=0.718, ROC-AUC=0.877)</span></li>
+          <li class="t-body"><span>El análisis por cohortes revela <span class="accent bold">heterogeneidad oculta</span>: F1 varía de 0 a 0.87 según el tipo de cliente</span></li>
+          <li class="t-body"><span><span style="color:#c084fc;font-weight:700;">internal_research</span>: F1=0.31, FNR=73% — el modelo no detecta la mayoría de sus cancelaciones</span></li>
+        </ul>
+        <ul class="bullet-list amber" style="gap:30px;justify-content:center;">
+          <li class="t-body"><span>La <span class="amber bold">curva de aprendizaje</span> confirma que el sistema es data-limited en esa cohorte</span></li>
+          <li class="t-body"><span>Los <span class="amber bold">datos reales superan a SMOTE</span>: +500 instancias reales mejoran F1 y AUC, mientras que SMOTE los empeora</span></li>
+          <li class="t-body"><span>El diseño data-centric mejora el F1 de 0.7185 a 0.7231 y el ROC-AUC de 0.8772 a 0.8827</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-footer" style="background:linear-gradient(90deg,var(--c-accent) 0%,var(--c-accent2) 50%,rgba(14,165,233,0.2) 100%);"></div>
+  </section>
+
+</deck-stage>
+
+<script src="deck-stage.js"></script>
+</body>
+</html>
